@@ -20,20 +20,33 @@ made of individual squares that change when the user clicks
   - default - specifies the main function in the file
 */
 export default function Board() {
+  // Allow the game to take turns (start with "X")
+  const [xIsNext, setXIsNext] = useState(true);
+  
   // Lift the state of the board up into the parent
   // (create an array with 9 elems, set each to null)
   const [squares, setSquares] = useState(Array(9).fill(null));
 
   // Put an X at the ith index of the tic tac toe array
   function handleClick(i) {
+    // Make sure the square is empty, return early if not
+    if (squares[i]) {
+      return;
+    }
+
     // Create a copy of the squares array (auto start at index 0)
     const nextSquares = squares.slice();
-    // Add X to the ith square in the new array
-    nextSquares[i] = "X";
+
+    // Add X or O to the ith square in the new array
+    nextSquares[i] = (xIsNext) ? "X" : "O";
+
     // Replace the exg squares array with the new array
     // This will trigger a re-render of elems that use squares state
     // i.e. the Board and its child components
     setSquares(nextSquares);
+
+    // Change whose turn it is
+    setXIsNext(!xIsNext);
   }
 
   return (
