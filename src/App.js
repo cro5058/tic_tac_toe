@@ -29,8 +29,8 @@ export default function Board() {
 
   // Put an X at the ith index of the tic tac toe array
   function handleClick(i) {
-    // Make sure the square is empty, return early if not
-    if (squares[i]) {
+    // Return early if the square is occupied or the game is over
+    if (squares[i] || calculateWinner(squares)) {
       return;
     }
 
@@ -49,8 +49,14 @@ export default function Board() {
     setXIsNext(!xIsNext);
   }
 
+  // At the end, display if there is a winner,
+  // or else, show whose turn it is
+  const winner = calculateWinner(squares);
+  let status = (winner) ? ("Winner: " + winner) : ("Next player: " + (xIsNext ? "X" : "O"));
+
   return (
     <>
+      <div className="status">{status}</div>
       <div className="board-row">
         <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
         <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
@@ -68,4 +74,35 @@ export default function Board() {
       </div>
     </>
   );
+}
+
+
+/*
+Determines whether the game has been won and if so, who is the winner.
+*/
+function calculateWinner(squares) {
+  // Horizontal, vertical, and diagonal ways you can win
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+
+    [0, 4, 8],
+    [2, 4, 6]
+  ];
+
+  // See if any of these combinations of indices have the same character
+  // at each index in the board
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      return squares[a];
+    }
+  }
+
+  return null;
 }
