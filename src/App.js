@@ -100,7 +100,7 @@ export default function Game() {
   }
 
   // Function to enumerate buttons of different states of the board
-  const moves = history.map((squares, move) => {
+  const moves = history.slice(0, currentMove).map((squares, move) => {
     let description;
     if (move > 0) {
       description = 'Go to move #' + move;
@@ -110,19 +110,33 @@ export default function Game() {
     }
     return (
       <li key={move}>
-        <button onClick={() => jumpTo(move)}>{description}</button>
+        <button onClick={() => jumpTo(move)}>
+          {description}
+        </button>
       </li>
     );
   });
 
+  let moveDisplay;
+  if (currentMove === 0) {
+    moveDisplay = "You are at the game start";
+  }
+  else {
+    moveDisplay = "You are on move #" + currentMove;
+  }
+
   return (
     <div className="game">
+
       <div className="game-board">
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
+
       <div className='game-info'>
         <ol>{moves}</ol>
+        <p>{moveDisplay}</p>
       </div>
+
     </div>
   );
 }
