@@ -15,18 +15,10 @@ function Square({ value, onSquareClick }) {
 
 /*
 Tic-tac-toe board component,
-made of individual squares that change when the user clicks
-  - export - makes the function visible outside the file
-  - default - specifies the main function in the file
+made of individual squares that change when the user clicks.
+- Controlled by the Game component
 */
-export default function Board() {
-  // Allow the game to take turns (start with "X")
-  const [xIsNext, setXIsNext] = useState(true);
-  
-  // Lift the state of the board up into the parent
-  // (create an array with 9 elems, set each to null)
-  const [squares, setSquares] = useState(Array(9).fill(null));
-
+function Board({ xIsNext, squares, onPlay }) {
   // Put an X at the ith index of the tic tac toe array
   function handleClick(i) {
     // Return early if the square is occupied or the game is over
@@ -43,10 +35,7 @@ export default function Board() {
     // Replace the exg squares array with the new array
     // This will trigger a re-render of elems that use squares state
     // i.e. the Board and its child components
-    setSquares(nextSquares);
-
-    // Change whose turn it is
-    setXIsNext(!xIsNext);
+    onPlay(nextSquares);
   }
 
   // At the end, display if there is a winner,
@@ -73,6 +62,68 @@ export default function Board() {
         <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
       </div>
     </>
+  );
+}
+
+
+/*
+Game component, stores the board and the history of moves 
+  - export - makes the function visible outside the file
+  - default - specifies the main function in the file
+*/
+export default function Game() {
+  // History of the board, list of arrays
+  const [history, setHistory] = useState([Array(9).fill(null)]);
+
+  // Current move number
+  const [currentMove, setCurrentMove] = useState(0);
+
+  // Allow the game to take turns (start with "X")
+  const xIsNext = currentMove % 2 === 0;
+
+  // Current arrangement of the board
+  const currentSquares = history[currentMove];
+
+  // Function that will be called by the Board component to update the game
+  function handlePlay(nextSquares) {
+    // Update the history (all items in history plus the new state)
+    // Take into account whether the user went back in time to a previous move
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+    setHistory(nextHistory);
+    setCurrentMove(nextHistory.length - 1)
+  }
+
+  // Function to allow the user to restore a past state of the board
+  function jumpTo(nextMove) {
+    // Set the current move to the specified move
+    setCurrentMove(nextMove);
+  }
+
+  // Function to enumerate buttons of different states of the board
+  const moves = history.map((squares, move) => {
+    let description;
+    if (move > 0) {
+      description = 'Go to move #' + move;
+    } 
+    else {
+      description = 'Go to game start';
+    }
+    return (
+      <li key={move}>
+        <button onClick={() => jumpTo(move)}>{description}</button>
+      </li>
+    );
+  });
+
+  return (
+    <div className="game">
+      <div className="game-board">
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+      </div>
+      <div className='game-info'>
+        <ol>{moves}</ol>
+      </div>
+    </div>
   );
 }
 
